@@ -1,4 +1,4 @@
-FROM ubuntu:15.04
+FROM ubuntu:14.04
 MAINTAINER hafe
 
 RUN apt-get update && apt-get install -y \
@@ -13,8 +13,8 @@ RUN pip install --upgrade pip
 
 # https://github.com/paulczar/openstack-on-docker/blob/master/keystone/Dockerfile
 
-#ENV VERSION=stable/kilo
-ENV VERSION=master
+ENV VERSION=stable/mitaka
+#ENV VERSION=master
 
 RUN \
   git clone --depth 1 -b $VERSION https://github.com/openstack/keystone.git /app/keystone && \
@@ -49,11 +49,14 @@ RUN crudini --set /etc/keystone/keystone.conf token provider keystone.token.prov
     crudini --set /etc/keystone/keystone.conf cache backend dogpile.cache.memcached && \
     rm -f /var/lib/keystone/keystone.db
 
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
 EXPOSE 5000 35357
 
 COPY start.sh /
 COPY start-2.sh /
 COPY post-start.sh /
+RUN chmod +x /start.sh && chmod +x /start-2.sh
 CMD ["/start.sh"]
 RUN mkdir -p /etc/keystone/domains
 COPY keystone.acme.conf /etc/keystone/domains/
@@ -64,3 +67,15 @@ COPY kolla-common.sh /opt/kolla/kolla-common.sh
 COPY crux.sh /opt/kolla/crux.sh
 COPY create-endpoints.sh /
 
+#RUN pip uninstall oslo.messaging 
+RUN pip install oslo.messaging==5.12.0
+
+#RUN apt-get install -y apache2 libapache2-mod-wsgi
+#COPY wsgi-keystone.conf /etc/apache2/sites-available/
+#RUN ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled
+#RUN echo "ServerName 172.17.0.4" >>  /etc/apache2/apache2.conf
+#RUN useradd keystone
+#RUN service apache2 restart
+#COPY start.sh /
+#RUN chmod +x /start.sh && chmod +x /start-2.sh
+#RUN update-rc.d -f apache2 start

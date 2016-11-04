@@ -27,8 +27,10 @@ RUN { \
     mkdir -p /var/lib/mysql
 
 # copy file to a location where mysql_install_db can find it
-RUN cp /usr/share/doc/mysql-wsrep-server-5.6/examples/my-default.cnf \
-    /usr/share/mysql/my-default.cnf
+
+#ERROR this line, cannot copy because of missing file
+#RUN cp /usr/share/doc/mysql-wsrep-server-5.6/examples/my-default.cnf \
+#    /usr/share/mysql/my-default.cnf
 
 COPY ./my.cnf /etc/mysql/my.cnf
 COPY ./start.sh /start.sh

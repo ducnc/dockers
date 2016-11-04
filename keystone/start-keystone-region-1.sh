@@ -30,7 +30,7 @@ docker run -d \
     hafe/keystone /start.sh $role > /dev/null
 
 echo "   Sleeping a while letting keystone start"
-sleep 30
+sleep 120
 
 echo "   Creating basic project, users and roles"
 docker run \
