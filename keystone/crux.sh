@@ -23,6 +23,10 @@ crux_endpoint() {
     fi
 }
 
+crux_domain() {
+    openstack domain create --description "Domain $1"  $1 > /dev/null
+}
+
 crux_role() {
     openstack role create --or-show $1 > /dev/null
 }

@@ -1,4 +1,4 @@
-FROM ubuntu:15.04
+FROM ubuntu:14.04
 MAINTAINER hafe
 
 # An image with all the OpenStack client packages installed
@@ -9,16 +9,15 @@ RUN apt-get update && apt-get install -y \
     python-dev \
     python-pip
 
-RUN pip install \
-    python-ceilometerclient \
-    python-cinderclient \
-    python-glanceclient \
-    python-heatclient \
-    python-keystoneclient \
-    python-neutronclient \
-    python-novaclient \
-    python-swiftclient \
-    python-openstackclient
+RUN pip install python-ceilometerclient
+RUN pip install python-cinderclient
+RUN pip install python-glanceclient
+RUN pip install python-heatclient
+RUN pip install python-keystoneclient
+RUN pip install python-neutronclient
+RUN pip install python-novaclient
+RUN pip install python-swiftclient
+RUN pip install python-openstackclient
 
 RUN apt-get install -y curl
 
