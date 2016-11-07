@@ -47,6 +47,11 @@ crudini --set /etc/glance/glance-registry-paste.ini \
     admin_tenant_name \
     service
 
+sed -i 's/project_domain_id/project_domain_name/g' /etc/glance/glance-api.conf
+sed -i 's/user_domain_id/user_domain_name/g' /etc/glance/glance-api.conf
+sed -i 's/project_domain_id/project_domain_name/g' /etc/glance/glance-registry.conf
+sed -i 's/user_domain_id/user_domain_name/g' /etc/glance/glance-registry.conf
+
 echo "Starting glance-registry"
 glance-registry --version
 if [ -z $DEBUG ]; then

@@ -23,6 +23,7 @@ export OS_PROJECT_DOMAIN_NAME=Default
 export OS_PROJECT_NAME=admin
 export OS_AUTH_URL=http://$KEYSTONE_MASTER_PORT_35357_TCP_ADDR:5000/v3
 export OS_IDENTITY_API_VERSION=3
+export OS_USER_DOMAIN_NAME=Default
 env | grep OS_
 crux_user ${GLANCE_KEYSTONE_PASSWORD} ${GLANCE_KEYSTONE_USER}
 crux_role_add service $GLANCE_KEYSTONE_USER admin
@@ -35,6 +36,12 @@ crudini --set /etc/glance/glance-api.conf \
     DEFAULT \
     registry_host \
     "${GLANCE_REGISTRY_SERVICE_HOST}"
+
+sed -i 's/project_domain_id/project_domain_name/g' /etc/glance/glance-api.conf
+sed -i 's/user_domain_id/user_domain_name/g' /etc/glance/glance-api.conf
+sed -i 's/project_domain_id/project_domain_name/g' /etc/glance/glance-registry.conf
+sed -i 's/user_domain_id/user_domain_name/g' /etc/glance/glance-registry.conf
+
 
 crudini --set /etc/glance/glance-api-paste.ini \
     "filter:authtoken" \

@@ -23,7 +23,7 @@ export OS_URL=http://$KEYSTONE_PORT_35357_TCP_ADDR:35357/v3
 export OS_IDENTITY_API_VERSION=3
 export OS_PROJECT_DOMAIN_NAME=default
 
-crux_domain default
+crux_domain Default
 
 crux_service keystone identity "OpenStack Identity"
 crux_endpoint $REGION_NAME identity public http://$KEYSTONE_PORT_5000_TCP_ADDR:5000
