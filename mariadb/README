@@ -1,32 +1,28 @@
-# Information about how to configure a mysql slave for replication
+# Create container
+export DB_ROOT_PASSWORD=Welcome123
+bash start-mariadb.sh master hanoi-master 10
+bash start-mariadb.sh slave hanoi-slave 20
 
-http://dev.mysql.com/doc/refman/5.6/en/replication.html
-https://dev.mysql.com/doc/refman/5.6/en/replication-solutions-scaleout.html
+# Setup on master
+mysql -u root -pWelcome123 -h 127.0.0.1 -P 3304 -e "CREATE USER 'repl'@'%' IDENTIFIED BY 'weascafa221f';"
+mysql -u root -pWelcome123 -h 127.0.0.1 -P 3304 -e "GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';"
 
-# Start slave replication
-masterip=$(docker inspect -f "{{.NetworkSettings.IPAddress}}" mysql-Kista)
-docker exec -it mysql-Solna env MASTER_IP=$masterip bash
-mysql -pdbroot -e "CHANGE MASTER TO MASTER_HOST='$MASTER_IP', MASTER_PORT=3306, MASTER_AUTO_POSITION=1;"
-mysql -pdbroot -e "START SLAVE USER='repl' PASSWORD='replpass';"
-exit
+# Create data on master
+mysql -u root -pWelcome123 -h 127.0.0.1 -P 3304 -e "create database keystone"
+mysql -u root -pWelcome123 -h 127.0.0.1 -P 3304 -e "use keystone; create table yyy (id int)"
+mysql -u root -pWelcome123 -h 127.0.0.1 -P 3304 -e "use keystone; create table zzz (id int)"
 
-# Check replication setup on slave
-docker exec -it mysql-Solna env MASTER_IP=$masterip bash
-mysqlrplcheck -v --master=root:dbroot@$MASTER_IP:3306 --slave=root:dbroot@localhost:3306
+# Start replication on slave
+masterip=$(docker inspect -f "{{.NetworkSettings.IPAddress}}" hanoi-master)
+cat << EOF | mysql -uroot -pWelcome123 -h 127.0.0.1 -P 3305
+CHANGE MASTER TO
+  MASTER_HOST='$masterip',
+  MASTER_USER='repl',
+  MASTER_PASSWORD='weascafa221f',
+  MASTER_PORT=3306,
+  MASTER_CONNECT_RETRY=10;
+START SLAVE;
+EOF
 
-# Test replication
-docker exec -it mysql-Kista mysql -pdbroot keystone -e "select * from domain;"
-docker exec -it mysql-Solna mysql -pdbroot keystone -e "select * from domain;"
-
-# should work:
-docker exec -it mysql-Kista mysql -pdbroot glance -e "show tables;"
-
-# should fail:
-docker exec -it mysql-Solna mysql -pdbroot glance -e "show tables;"
-
-# Show slave status on mysql master
-docker exec -it mysql-Kista mysql -pdbroot -e "show slave hosts;"
-
-# Show slave status
-docker exec -it mysql-Solna mysql -pdbroot -e "show slave status\G;"
-
+# Test replicate on Slave, should work
+mysql -u root -pWelcome123 -h 127.0.0.1 -P 3305 -e "use keystone; show tables"
